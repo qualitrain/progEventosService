@@ -19,8 +19,10 @@ public class ApiEventosController {
 	@GetMapping(path = "/eventos/programacion",produces = MediaType.TEXT_PLAIN_VALUE)
 	public String getUiProgEventos() {
 		bitacora.info("getUiProgEventos()");
-		Map<String, Integer> tematicas = gestorTematicas.getMapTematicas(1);
-		bitacora.info("Temáticas:" + tematicas.keySet());
+		int numPersona = 2;
+		Map<String, Integer> tematicas = gestorTematicas.getMapTematicas(numPersona);
+		bitacora.info("Temáticas de persona num(" + numPersona
+				+ "):" + tematicas.keySet());
 		
 		return tematicas.keySet().toString();
 	}
