@@ -15,15 +15,19 @@ public class ApiEventosController {
 	
 	@Autowired
 	private IGestorTematicas gestorTematicas;
+	@Autowired
+	private IGestorOrganizacion gestorOrganizacion;
 	
 	@GetMapping(path = "/eventos/programacion",produces = MediaType.TEXT_PLAIN_VALUE)
 	public String getUiProgEventos() {
 		bitacora.info("getUiProgEventos()");
 		int numPersona = 2;
+		
 		Map<String, Integer> tematicas = gestorTematicas.getMapTematicas(numPersona);
 		bitacora.info("Temáticas de persona num(" + numPersona
 				+ "):" + tematicas.keySet());
 		
-		return tematicas.keySet().toString();
+		Map<String, String> areas = gestorOrganizacion.getMapAreas();
+		return tematicas.keySet().toString() + ", " + areas.keySet().toString();
 	}
 }
