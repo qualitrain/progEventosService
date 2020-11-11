@@ -2,6 +2,10 @@ package mx.com.qtx.web;
 
 import java.util.Map;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,8 @@ public class ApiEventosController {
 	private IGestorTematicas gestorTematicas;
 	@Autowired
 	private IGestorOrganizacion gestorOrganizacion;
+	@Autowired
+	private IPublicadorNotificaciones notificador;
 	
 	@GetMapping(path = "/eventos/programacion",produces = MediaType.TEXT_PLAIN_VALUE)
 	public String getUiProgEventos() {
@@ -28,6 +34,49 @@ public class ApiEventosController {
 				+ "):" + tematicas.keySet());
 		
 		Map<String, String> areas = gestorOrganizacion.getMapAreas();
-		return tematicas.keySet().toString() + ", " + areas.keySet().toString();
+
+		// 	Coreografía: enviar eventoProgramado a MessageBroker	
+		String objJsonEvento = getJesonEvento();
+		this.notificador.emitirNotificacion(objJsonEvento);
+		
+		return tematicas.keySet().toString() + ", " + areas.keySet().toString() + ", " + objJsonEvento;
+		
+	}
+
+	private String getJesonEvento() {
+		JsonObjectBuilder evtoProgJsonBuilder = Json.createObjectBuilder();
+		JsonObject evtoJson = evtoProgJsonBuilder
+		            .add("numPersonaPropietario", 1201)
+		            .add("nombre", "Ramiro López Angulo")
+		            .add("objetivo", "Revisar avances proyecto Midas-2020")
+		            .add("fechaProg", "2020-07-05 11:15 CST")
+		            .add("duracionProgMin", 90)
+		            .add("estado", 0)
+		            .add("numEvento", 301)
+		            .add("participantes",Json.createArrayBuilder()
+		            		                 .add(Json.createObjectBuilder()
+		            		                		  .add("numParticipante", 1)
+		            		                          .add("numEmpleado", 501)
+		            		                          .add("nombre","José Miguel Torres Aragón")
+		            		                          .add("correoElectronico", "jmtorres@laempresa.com")
+		            		                          .add("telefono", "55-11-34-11-22")
+		            		                          .build())
+		            		                 .add(Json.createObjectBuilder()
+		            		                		  .add("numParticipante", 2)
+		            		                          .add("numEmpleado", 3421)
+		            		                          .add("nombre","Mariana Valdés Forlán")
+		            		                          .add("correoElectronico", "mvaldes@laempresa.com")
+		            		                          .add("telefono", "77-12-33-91-45")
+		            		                          .build())
+		            		                 .add(Json.createObjectBuilder()
+		            		                		  .add("numParticipante", 3)
+		            		                          .add("numEmpleado", 552)
+		            		                          .add("nombre","Juan Manuel Tinoco Morales")
+		            		                          .add("correoElectronico", "jmtinoco@laempresa.com")
+		            		                          .add("telefono", "33-19-99-01-03")
+		            		                          .build())
+		                                    .build())
+		         .build();
+		return evtoJson.toString();
 	}
 }
